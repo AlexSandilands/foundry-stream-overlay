@@ -1,0 +1,249 @@
+/* Riv Stream Overlay: only applies to clients tagged with a stream view (see main.js). */
+
+body.riv-stream {
+  background: transparent !important;
+  overflow: hidden;
+}
+
+/* -------------------------------------------- */
+/*  Map: nothing but the canvas (and 3D dice)   */
+/* -------------------------------------------- */
+
+body.riv-stream-map > *:not(#board):not(#dice-box-canvas) {
+  display: none !important;
+}
+
+/* -------------------------------------------- */
+/*  Chat: layout                                */
+/* -------------------------------------------- */
+
+body.riv-stream-chat #chat {
+  position: fixed;
+  inset: 0;
+  width: auto !important;
+  height: auto !important;
+  margin: 0;
+  padding: 10px 10px 12px;
+  background: none !important;
+  border: none !important;
+}
+
+body.riv-stream-chat #chat .chat-scroll {
+  height: 100%;
+  overflow: hidden !important;
+  mask-image: linear-gradient(to bottom, transparent 0, #000 60px);
+}
+
+body.riv-stream-chat #chat .chat-log {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 100%;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+body.riv-stream-chat #chat .chat-message {
+  margin: 0 !important;
+  padding: 8px 10px;
+  font-size: 15px;
+}
+
+body.riv-stream-chat #chat .message-header .avatar img {
+  width: 34px;
+  height: 34px;
+  border-radius: 2px;
+}
+
+body.riv-stream-chat #chat .message-header .title,
+body.riv-stream-chat #chat .message-sender {
+  font-family: var(--dnd5e-font-modesto, "Modesto Condensed"), serif;
+  font-size: 19px;
+  letter-spacing: 0.5px;
+}
+
+body.riv-stream-chat #chat .dice-total {
+  font-size: 22px;
+}
+
+/* Timestamps, context menus and chat buttons mean nothing to viewers. */
+body.riv-stream-chat #chat .message-metadata,
+body.riv-stream-chat #chat .card-buttons,
+body.riv-stream-chat #chat .chat-control {
+  display: none !important;
+}
+
+/* -------------------------------------------- */
+/*  Chat styles (setting: chatStyle)            */
+/* -------------------------------------------- */
+
+/* Parchment: light cards with dark ink, like a character sheet page. */
+body.riv-chat-parchment #chat .chat-message {
+  background: #ece3cf url("../../../ui/parchment.jpg") !important;
+  border: 1px solid #6b5a43;
+  border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7), inset 0 0 12px rgba(90, 64, 30, 0.25);
+  color: #1d1a16;
+}
+body.riv-chat-parchment #chat .message-header .title,
+body.riv-chat-parchment #chat .message-sender { color: #4a1c12; }
+body.riv-chat-parchment #chat .message-header .subtitle { color: #5f5546; }
+body.riv-chat-parchment #chat .message-header .avatar img { border: 1px solid #6b5a43; }
+body.riv-chat-parchment #chat .flavor-text { color: #3d352b; }
+
+/* Solid dark: opaque slate cards, crisp light text, no texture. */
+body.riv-chat-dark #chat .chat-message {
+  background: #191b1f !important;
+  border: 1px solid #5d6168;
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  color: #f1eee8;
+}
+body.riv-chat-dark #chat .chat-message::before,
+body.riv-chat-dark #chat .chat-message::after { display: none !important; }
+body.riv-chat-dark #chat .message-header .title,
+body.riv-chat-dark #chat .message-sender { color: #f3e7cc; }
+body.riv-chat-dark #chat .message-header .subtitle { color: #b4b8bf; }
+body.riv-chat-dark #chat .message-header .avatar img { border: 1px solid #5d6168; }
+body.riv-chat-dark #chat .chat-card .card-header {
+  background: #24272c !important;
+  border: 1px solid #4a4e55;
+}
+body.riv-chat-dark #chat .chat-card .summary .title { color: #f3e7cc; }
+body.riv-chat-dark #chat .chat-card .summary .subtitle,
+body.riv-chat-dark #chat .flavor-text { color: #c9c4b8; }
+body.riv-chat-dark #chat .dice-formula,
+body.riv-chat-dark #chat .dice-total {
+  background: #24272c !important;
+  border-color: #4a4e55 !important;
+  color: #f1eee8;
+}
+
+/* Banner: parchment card with a dark stone header band for the speaker. */
+body.riv-chat-banner #chat .chat-message {
+  padding: 0 0 8px;
+  background: #ece3cf url("../../../ui/parchment.jpg") !important;
+  border: 1px solid #3f4247;
+  border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+  color: #1d1a16;
+  overflow: hidden;
+}
+body.riv-chat-banner #chat .message-header {
+  margin: 0 0 6px;
+  padding: 6px 10px;
+  background: linear-gradient(#34373c, #24262a);
+  border-bottom: 1px solid #111;
+}
+body.riv-chat-banner #chat .message-content { padding: 0 10px; }
+body.riv-chat-banner #chat .message-header .title,
+body.riv-chat-banner #chat .message-sender { color: #f3e7cc; }
+body.riv-chat-banner #chat .message-header .subtitle { color: #b4b8bf; }
+body.riv-chat-banner #chat .message-header .avatar img { border: 1px solid #6b6f76; }
+body.riv-chat-banner #chat .flavor-text { color: #3d352b; padding: 0 10px; }
+body.riv-chat-banner #chat .message-header .flavor-text { color: #c9c4b8; padding: 0; }
+
+/* Ledger: one solid dark panel, messages separated by thin rules. */
+body.riv-chat-ledger #chat {
+  background: #141518 !important;
+}
+body.riv-chat-ledger #chat .chat-log { gap: 0; }
+body.riv-chat-ledger #chat .chat-message {
+  background: none !important;
+  border: none;
+  border-bottom: 1px solid #3a3d43;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 10px 4px;
+  color: #f1eee8;
+}
+body.riv-chat-ledger #chat .chat-message::before,
+body.riv-chat-ledger #chat .chat-message::after { display: none !important; }
+body.riv-chat-ledger #chat .message-header .title,
+body.riv-chat-ledger #chat .message-sender { color: #f3e7cc; }
+body.riv-chat-ledger #chat .message-header .subtitle { color: #b4b8bf; }
+body.riv-chat-ledger #chat .chat-card .card-header {
+  background: #202227 !important;
+  border: 1px solid #3a3d43;
+}
+body.riv-chat-ledger #chat .chat-card .summary .title { color: #f3e7cc; }
+body.riv-chat-ledger #chat .chat-card .summary .subtitle,
+body.riv-chat-ledger #chat .flavor-text { color: #c9c4b8; }
+body.riv-chat-ledger #chat .dice-formula,
+body.riv-chat-ledger #chat .dice-total {
+  background: #202227 !important;
+  border-color: #3a3d43 !important;
+  color: #f1eee8;
+}
+
+/* -------------------------------------------- */
+/*  Party portraits                             */
+/* -------------------------------------------- */
+
+/*
+ * The browser source covers x=595..1932, y=1164..1352 of the 2560x1440 canvas.
+ * Each slot is the 188x188 area under one portrait window; the transparent part
+ * of the window is the 152x148 box at (28, 30) inside it.
+ */
+body.riv-stream-party #chat {
+  display: none !important;
+}
+
+#riv-party {
+  position: fixed;
+  inset: 0;
+}
+
+#riv-party .riv-slot {
+  position: absolute;
+  top: 0;
+  width: 188px;
+  height: 188px;
+  overflow: hidden;
+}
+
+#riv-party .riv-slot[data-slot="0"] { left: 0; }
+#riv-party .riv-slot[data-slot="1"] { left: 284px; }
+#riv-party .riv-slot[data-slot="2"] { left: 574px; }
+#riv-party .riv-slot[data-slot="3"] { left: 863px; }
+#riv-party .riv-slot[data-slot="4"] { left: 1149px; }
+
+#riv-party .riv-portrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  border: none;
+}
+
+#riv-party .riv-hp {
+  position: absolute;
+  left: 32px;
+  width: 144px;
+  top: 154px;
+  height: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.85);
+  border-radius: 2px;
+  background: rgba(12, 12, 14, 0.82);
+  box-shadow: 0 0 0 1px rgba(150, 156, 165, 0.35);
+  overflow: hidden;
+}
+
+#riv-party .riv-hp-fill {
+  height: 100%;
+  background: linear-gradient(#a83232, #6e1d1d);
+}
+
+#riv-party .riv-hp-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Signika", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #f2f2f2;
+  text-shadow: 0 0 2px #000, 0 1px 2px #000;
+}
