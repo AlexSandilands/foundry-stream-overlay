@@ -172,6 +172,23 @@ async function streamDataReady() {
   return false;
 }
 
+/**
+ * Foundry only loads registered fonts (CONFIG.fontDefinitions, e.g. dnd5e's Roboto family)
+ * on the game page, so the /stream page would otherwise fall back to system fonts.
+ */
+function loadRegisteredFonts() {
+  const route = url => foundry.utils.getRoute?.(url) ?? `/${url}`;
+  for (const [family, definition] of Object.entries(CONFIG.fontDefinitions ?? {})) {
+    for (const font of definition.fonts ?? []) {
+      if (!font.urls?.length) continue;
+      const source = font.urls.map(url => `url("${route(url)}")`).join(", ");
+      const face = new FontFace(family, source, { weight: font.weight ?? "normal", style: font.style ?? "normal" });
+      document.fonts.add(face);
+      face.load().catch(() => {});
+    }
+  }
+}
+
 /* -------------------------------------------- */
 /*  Chat view                                   */
 /* -------------------------------------------- */
@@ -199,6 +216,7 @@ const ChatView = {
   async init() {
     const log = await waitFor(() => document.querySelector("#chat .chat-log"));
     if (!log || !(await streamDataReady())) return;
+    loadRegisteredFonts();
     this.log = log;
     this.applyStyle();
     const scroller = log.closest(".chat-scroll") ?? log.parentElement;
@@ -232,6 +250,7 @@ const PartyView = {
 
   async init() {
     if (!(await streamDataReady())) return;
+    loadRegisteredFonts();
     this.element = document.createElement("div");
     this.element.id = "riv-party";
     document.body.append(this.element);
