@@ -76,6 +76,16 @@ async def join(page, user, password, base_url):
     """Join through Foundry's join screen. Returns "ok" or a reason it failed."""
     await page.goto(base_url + "/join", wait_until="domcontentloaded")
     if "/join" not in page.url:
+        # Forge's game lobby (shown when its short-lived game access key has expired): press Launch.
+        launch = page.locator("a, button").filter(has_text="Launch").first
+        if await launch.count():
+            await launch.click()
+            try:
+                await page.wait_for_url(base_url + "/**", timeout=20000)
+            except Exception:
+                pass
+            await page.goto(base_url + "/join", wait_until="domcontentloaded")
+    if "/join" not in page.url:
         return f"Forge did not show the join screen ({page.url.split('?')[0]}); sign in to Forge first"
     await page.wait_for_selector('select[name="userid"]', state="attached", timeout=20000)
     result = await page.evaluate(JOIN_SCRIPT, [user, password])
