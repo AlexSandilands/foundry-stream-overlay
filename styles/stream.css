@@ -211,8 +211,8 @@ body.riv-stream-party #chat {
   position: absolute;
   left: 22px;
   width: 144px;
-  top: 154px;
-  height: 20px;
+  top: 151px;
+  height: 23px;
   border: 1px solid rgba(0, 0, 0, 0.85);
   border-radius: 2px;
   background: rgba(12, 12, 14, 0.82);
@@ -232,7 +232,7 @@ body.riv-stream-party #chat {
   align-items: center;
   justify-content: center;
   font-family: "Signika", sans-serif;
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 600;
   color: #f2f2f2;
   text-shadow: 0 0 2px #000, 0 1px 2px #000;
