@@ -40,6 +40,8 @@ Foundry's join screen, then sends it to its stream page. OBS must be started wit
 
 Config lives in `~/.config/riv-stream-overlay/obs-login.json` (base URL, and each
 panel's size, user and page); optional passwords in `passwords.json` next to it.
+OBS browser sources share one cookie jar, so every panel must use the same observer
+user; the script joins once and then loads each panel's page.
 
 ```
 uv run --with playwright python tools/obs_login.py
