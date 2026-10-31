@@ -44,27 +44,16 @@ body.riv-stream-chat #chat .chat-log {
   padding: 0;
 }
 
+/*
+ * The panel is ~50% wider than Foundry's chat sidebar, so cards would stretch
+ * instead of growing. Zooming lays them out narrower and scales everything up.
+ */
+body.riv-stream-chat #chat .chat-log {
+  zoom: 1.3;
+}
+
 body.riv-stream-chat #chat .chat-message {
   margin: 0 !important;
-  padding: 8px 10px;
-  font-size: 15px;
-}
-
-body.riv-stream-chat #chat .message-header .avatar img {
-  width: 34px;
-  height: 34px;
-  border-radius: 2px;
-}
-
-body.riv-stream-chat #chat .message-header .title,
-body.riv-stream-chat #chat .message-sender {
-  font-family: var(--dnd5e-font-modesto, "Modesto Condensed"), serif;
-  font-size: 19px;
-  letter-spacing: 0.5px;
-}
-
-body.riv-stream-chat #chat .dice-total {
-  font-size: 22px;
 }
 
 /* Timestamps, context menus and chat buttons mean nothing to viewers. */
