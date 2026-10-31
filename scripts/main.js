@@ -52,7 +52,7 @@ Hooks.once("init", () => {
     config: true,
     type: String,
     choices: Object.fromEntries(Object.entries(CHAT_STYLES).map(([k, v]) => [k, v.label])),
-    default: "dark",
+    default: "parchment",
     onChange: () => ChatView.applyStyle()
   });
 
@@ -189,7 +189,7 @@ const ChatView = {
   /** Apply one of CHAT_STYLES; defaults to the world setting. */
   applyStyle(style) {
     style ??= game.settings.get(MODULE_ID, "chatStyle");
-    if (!CHAT_STYLES[style]) style = "dark";
+    if (!CHAT_STYLES[style]) style = "parchment";
     for (const key of Object.keys(CHAT_STYLES)) document.body.classList.toggle(`riv-chat-${key}`, key === style);
     const theme = CHAT_STYLES[style].theme;
     this.log?.classList.remove("theme-light", "theme-dark");

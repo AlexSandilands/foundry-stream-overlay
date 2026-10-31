@@ -183,8 +183,9 @@ body.riv-chat-ledger #chat .dice-total {
 
 /*
  * The browser source covers x=595..1932, y=1164..1352 of the 2560x1440 canvas.
- * Each slot is the 188x188 area under one portrait window; the transparent part
- * of the window is the 152x148 box at (28, 30) inside it.
+ * Each slot is the 188x188 area under one portrait window frame. The fully
+ * transparent part is the 152x148 box at (28, 30), but the frame's inner shadow
+ * is heavier on the top/left, so bars are centred on the whole 188px frame.
  */
 body.riv-stream-party #chat {
   display: none !important;
@@ -219,7 +220,7 @@ body.riv-stream-party #chat {
 
 #riv-party .riv-hp {
   position: absolute;
-  left: 32px;
+  left: 22px;
   width: 144px;
   top: 154px;
   height: 20px;
