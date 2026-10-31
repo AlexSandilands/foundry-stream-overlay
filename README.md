@@ -11,8 +11,9 @@ user into clean OBS browser sources for streaming:
 
 ## GM controls
 
-- **Shift+M** pauses or resumes the stream camera (configurable under Configure Controls).
-- Viewing another scene to prepare it never moves the stream; mirroring only applies to the scene the stream is showing.
+- The stream's chat follows the GM's chat: scroll position, and any rolls or cards the GM expands or collapses.
+- **Shift+M** pauses or resumes both the map and chat mirroring (configurable under Configure Controls).
+- Viewing another scene to prepare it never moves the stream; map mirroring only applies to the scene the stream is showing.
 - Module settings: party slot characters, portrait image (portrait art or token), HP numbers, chat style.
 
 ## Install
