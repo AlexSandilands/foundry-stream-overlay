@@ -91,7 +91,12 @@ Hooks.once("init", () => {
 
 });
 
-Hooks.once("setup", () => {
+let socketRegistered = false;
+
+/** Listen for mirror messages. Called from "setup" and, since /stream never fires it, from the stream views. */
+function registerSocket() {
+  if (socketRegistered || !game.socket) return;
+  socketRegistered = true;
   game.socket.on(SOCKET, message => {
     switch (message.type) {
       case "request":
@@ -103,7 +108,9 @@ Hooks.once("setup", () => {
       case "chatToggle": return ChatView.onToggle(message);
     }
   });
-});
+}
+
+Hooks.once("setup", registerSocket);
 
 Hooks.once("ready", () => ChatMirror.init());
 
@@ -218,6 +225,8 @@ const CHAT_STYLES = {
 const ChatView = {
   log: null,
   scroller: null,
+  targetTop: 0,
+  gliding: false,
 
   /** The GM's scroll anchor ({messageId, fraction}); null means follow the newest message. */
   anchor: null,
@@ -248,6 +257,7 @@ const ChatView = {
     // Images (portraits, item icons) change heights after load.
     log.addEventListener("load", tidy, true);
     tidy();
+    registerSocket();
     game.socket.emit(SOCKET, { type: "request" });
   },
 
@@ -255,7 +265,7 @@ const ChatView = {
   scroll(smooth) {
     const scroller = this.scroller;
     if (!scroller) return;
-    let top = scroller.scrollHeight;
+    let top = scroller.scrollHeight - scroller.clientHeight;
     if (this.anchor) {
       const message = this.findMessage(this.anchor.messageId);
       if (!message) return;
@@ -263,7 +273,30 @@ const ChatView = {
       const bottom = scroller.getBoundingClientRect().bottom;
       top = scroller.scrollTop + (rect.top + (this.anchor.fraction * rect.height)) - bottom;
     }
-    scroller.scrollTo({ top, behavior: smooth ? "smooth" : "instant" });
+    this.targetTop = Math.max(0, Math.min(top, scroller.scrollHeight - scroller.clientHeight));
+    if (!smooth) scroller.scrollTop = this.targetTop;
+    else if (!this.gliding) this.glide();
+  },
+
+  /** Ease towards the latest target every frame, so frequent small updates read as one smooth motion. */
+  glide() {
+    this.gliding = true;
+    let last = performance.now();
+    const step = now => {
+      const scroller = this.scroller;
+      const distance = this.targetTop - scroller.scrollTop;
+      if (Math.abs(distance) < 0.5) {
+        scroller.scrollTop = this.targetTop;
+        this.gliding = false;
+        return;
+      }
+      // Cover ~90% of the remaining distance every 150ms, independent of frame rate.
+      const t = 1 - Math.pow(0.1, (now - last) / 150);
+      last = now;
+      scroller.scrollTop += distance * t;
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   },
 
   findMessage(id) {
@@ -340,7 +373,7 @@ const ChatMirror = {
 
   init() {
     if (!game.user.isGM || mode) return;
-    const sendScroll = foundry.utils.throttle(() => this.sendScroll(), 150);
+    const sendScroll = foundry.utils.throttle(() => this.sendScroll(), 50);
     document.addEventListener("scroll", event => {
       if ((event.target instanceof Element) && event.target.matches("#chat .chat-scroll")) sendScroll();
     }, true);
