@@ -26,7 +26,7 @@ CONFIG_DIR = Path.home() / ".config" / "riv-stream-overlay"
 
 JOIN_SCRIPT = """
 ([user, password]) => {
-  const select = document.querySelector('select[name="userid"]');
+  const select = document.querySelector('select[name="userid" i]');
   if (!select) return "no join form";
   const option = [...select.options].find(o => o.textContent.trim() === user);
   if (!option) return `user ${user} not found`;
@@ -87,12 +87,13 @@ async def join(page, user, password, base_url):
             await page.goto(base_url + "/join", wait_until="domcontentloaded")
     if "/join" not in page.url:
         return f"Forge did not show the join screen ({page.url.split('?')[0]}); sign in to Forge first"
-    await page.wait_for_selector('select[name="userid"]', state="attached", timeout=20000)
+    await page.wait_for_selector('select[name="userid" i]', state="attached", timeout=20000)
     result = await page.evaluate(JOIN_SCRIPT, [user, password])
     if result != "ok":
         return result
     try:
-        await page.wait_for_url("**/game*", timeout=20000)
+        # Foundry 14 may land on another page after joining (e.g. /stream); any page but /join will do.
+        await page.wait_for_url(lambda url: "/join" not in url, timeout=20000)
     except Exception:
         return "join did not complete (wrong password?)"
     return "ok"

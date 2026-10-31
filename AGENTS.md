@@ -58,6 +58,13 @@ and blind messages, which never reach the stream.
   (`registerSocket()` is idempotent and also runs on `setup` for normal clients).
 - **`/stream` doesn't load `CONFIG.fontDefinitions`** (dnd5e's Roboto family), so
   `loadRegisteredFonts()` adds them as `FontFace`s.
+- **Foundry 14 applies the viewer's colour scheme to `/stream`'s `.chat-log`** after load
+  (`theme-dark` puts light text on the parchment styles). `ChatView.enforceTheme()` puts
+  the style's theme back whenever the class changes.
+- **`/stream` has no `ui.notifications`**, but Foundry's socket disconnect/reconnect
+  handlers call it; the error aborts socket.io's reconnection and the page goes deaf.
+  `watchConnection()` adds a console stand-in, and reloads the page if the socket still
+  stays down.
 - **`game.modules.get(id).version` is stale** until the Foundry server restarts; the
   served files update immediately. Browsers may cache the old `main.js`: hard refresh.
 - The chat panel is wider than Foundry's sidebar, so `.chat-log` uses `zoom: 1.3`;

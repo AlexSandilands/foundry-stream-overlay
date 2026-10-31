@@ -224,6 +224,7 @@ const CHAT_STYLES = {
 
 const ChatView = {
   log: null,
+  theme: null,
   scroller: null,
   targetTop: 0,
   gliding: false,
@@ -236,9 +237,19 @@ const ChatView = {
     style ??= game.settings.get(MODULE_ID, "chatStyle");
     if (!CHAT_STYLES[style]) style = "parchment";
     for (const key of Object.keys(CHAT_STYLES)) document.body.classList.toggle(`riv-chat-${key}`, key === style);
-    const theme = CHAT_STYLES[style].theme;
-    this.log?.classList.remove("theme-light", "theme-dark");
-    this.log?.classList.add(`theme-${theme}`);
+    this.theme = CHAT_STYLES[style].theme;
+    this.enforceTheme();
+  },
+
+  /**
+   * Keep the chat log in the style's theme. Foundry 14 applies the viewing user's colour
+   * scheme to the log after the page loads, which would put light text on parchment.
+   */
+  enforceTheme() {
+    const log = this.log;
+    if (!log || !this.theme || log.classList.contains(`theme-${this.theme}`)) return;
+    log.classList.remove("theme-light", "theme-dark");
+    log.classList.add(`theme-${this.theme}`);
   },
 
   async init() {
@@ -248,6 +259,7 @@ const ChatView = {
     this.log = log;
     this.scroller = log.closest(".chat-scroll") ?? log.parentElement;
     this.applyStyle();
+    new MutationObserver(() => this.enforceTheme()).observe(log, { attributes: true, attributeFilter: ["class"] });
     const tidy = () => {
       const messages = log.querySelectorAll(":scope > .chat-message");
       for (let i = 0; i < messages.length - CHAT_HISTORY; i++) messages[i].remove();
@@ -557,6 +569,38 @@ class SlotsConfig extends foundry.applications.api.ApplicationV2 {
 }
 
 /* -------------------------------------------- */
+/*  Connection watchdog (stream views)          */
+/* -------------------------------------------- */
+
+/**
+ * Foundry's /stream page has no ui.notifications, but Foundry's socket "disconnect" and
+ * "reconnect" handlers use it. The resulting error aborts socket.io's reconnection, so
+ * the page silently stops receiving chat, HP and mirror updates. Log to the console
+ * instead. Should the socket still stay down (e.g. the server closed it), reload the
+ * page as soon as the server answers again.
+ */
+async function watchConnection() {
+  if (!ui.notifications) {
+    const log = level => message => console[level](`${MODULE_ID} | ${message}`);
+    ui.notifications = { info: log("info"), success: log("info"), warn: log("warn"), error: log("error"),
+      notify: log("info") };
+  }
+  const socket = await waitFor(() => game.socket, 300);
+  if (!socket) return;
+  let timer = null;
+  const check = async () => {
+    timer = null;
+    if (socket.connected) return;
+    try {
+      const response = await fetch(location.href, { method: "HEAD", cache: "no-store" });
+      if (response.ok && !response.redirected) return location.reload();
+    } catch {}
+    timer = setTimeout(check, 5000);
+  };
+  socket.on("disconnect", () => timer ??= setTimeout(check, 5000));
+}
+
+/* -------------------------------------------- */
 /*  Start                                       */
 /* -------------------------------------------- */
 
@@ -570,3 +614,4 @@ if (mode) {
 }
 if (mode === "chat") ChatView.init();
 if (mode === "party") PartyView.init();
+if (mode === "chat" || mode === "party") watchConnection();
