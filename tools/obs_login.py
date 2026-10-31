@@ -54,6 +54,12 @@ async def page_state(page):
 async def log_in(page, panel, base_url, password):
     target = base_url + panel["path"]
     state = await page_state(page)
+    # A game or stream page that is still loading has no user yet; give it a moment.
+    for _ in range(30):
+        if not state or state["user"] or not state["path"].endswith(("/game", "/stream")):
+            break
+        await asyncio.sleep(0.5)
+        state = await page_state(page)
     wanted_path, _, wanted_hash = panel["path"].partition("#")
     if (state and state["user"] == panel["user"] and state["path"].endswith(wanted_path)
             and state["hash"].lstrip("#") == wanted_hash):
